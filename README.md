@@ -10,7 +10,6 @@ Este proyecto es una **API RESTful** construida con **NestJS**, **TypeORM** y **
 ✅ Validaciones con `class-validator`  
 ✅ Documentación con **Swagger**  
 ✅ Persistencia de datos en **PostgreSQL**  
-✅ Uso de **Docker** (Opcional)  
 
 ---
 
