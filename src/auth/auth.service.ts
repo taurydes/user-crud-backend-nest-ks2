@@ -5,19 +5,20 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../user/entities/user.entity';
 import { AuthUser } from './interfaces/User';
+import { DatabaseConnectionName } from 'src/database/DatabaseConnectionName';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(User, DatabaseConnectionName.DB_MAIN)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(credential: string, password: string): Promise<AuthUser> {
-    // Buscar al usuario por email o username
+    // Buscar al usuario por email o name
     const user = await this.userRepository.findOne({
-      where: [{ email: credential }, { username: credential }],
+      where: [{ email: credential }, { name: credential }],
     });
 
     if (!user) {
@@ -35,7 +36,7 @@ export class AuthService {
   }
 
   async login(user: AuthUser): Promise<{ access_token: string }> {
-    const payload = { username: user.username, sub: user.id };
+    const payload = { name: user.name, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
     };

@@ -1,30 +1,24 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './configuration';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import * as dotenv from 'dotenv';
+import { RoleModule } from './role/role.module';
+import { getMainConnection } from './database/getMainConnection';
 
-
-dotenv.config();
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT), // Convertir a número
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: true, // Solo en desarrollo
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
     }),
+    getMainConnection(), // Conexión principal a la base de datos
     UserModule,
     AuthModule,
+    RoleModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

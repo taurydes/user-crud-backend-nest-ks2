@@ -9,28 +9,24 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { DatabaseConnectionName } from 'src/database/DatabaseConnectionName';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(User, DatabaseConnectionName.DB_MAIN)
     private readonly userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     try {
-      // Verificar si el usuario ya existe (email o username)
+      // Verificar si el usuario ya existe (email)
       const existingUser = await this.userRepository.findOne({
-        where: [
-          { email: createUserDto.email },
-          { username: createUserDto.username },
-        ],
+        where: { email: createUserDto.email },
       });
 
       if (existingUser) {
-        throw new NotFoundException(
-          'El correo o nombre de usuario ya están en uso.',
-        );
+        throw new BadRequestException('El correo electrónico ya está en uso.');
       }
 
       // Cifrar la contraseña antes de guardar
@@ -50,7 +46,7 @@ export class UserService {
 
       return rest;
     } catch (error) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         `Error al crear el usuario: ${error.message}`,
       );
     }
@@ -58,14 +54,15 @@ export class UserService {
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
     try {
-      const users = await this.userRepository.find();
+      const users = await this.userRepository.find( );
       return users.map(({ password, ...rest }) => rest);
     } catch (error) {
+      console.log(error);
       throw new NotFoundException('Error al obtener la lista de usuarios.');
     }
   }
 
-  async findOne(id: string): Promise<Omit<User, 'password'> | null> {
+  async findOne(id: number): Promise<Omit<User, 'password'> | null> {
     try {
       const user = await this.userRepository.findOneBy({ id });
 
@@ -77,13 +74,13 @@ export class UserService {
       return rest;
     } catch (error) {
       throw new NotFoundException(
-        `Error al obtener el usuario:${error.message}`,
+        `Error al obtener el usuario: ${error.message}`,
       );
     }
   }
 
   async update(
-    id: string,
+    id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<Omit<User, 'password'> | null> {
     try {
@@ -111,19 +108,22 @@ export class UserService {
       const { password, ...rest } = updatedUser;
       return rest;
     } catch (error) {
-      throw new NotFoundException(
-        `Error al actualizar el usuario:${error.message}`,
+      throw new BadRequestException(
+        `Error al actualizar el usuario: ${error.message}`,
       );
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     try {
-      await this.findOne(id);
+      const user = await this.findOne(id);
+      if (!user) {
+        throw new NotFoundException(`Usuario con ID ${id} no encontrado.`);
+      }
       await this.userRepository.delete(id);
     } catch (error) {
       throw new NotFoundException(
-        `Error al eliminar el usuario:${error.message}`,
+        `Error al eliminar el usuario: ${error.message}`,
       );
     }
   }

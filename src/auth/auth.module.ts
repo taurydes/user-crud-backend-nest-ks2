@@ -2,17 +2,17 @@ import * as dotenv from 'dotenv';
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { UserModule } from 'src/user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
+import { DatabaseConnectionName } from 'src/database/DatabaseConnectionName';
 
 dotenv.config();
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User],DatabaseConnectionName.DB_MAIN),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secret',
@@ -21,6 +21,6 @@ dotenv.config();
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports:[JwtModule]
+  exports: [JwtModule, AuthService], 
 })
 export class AuthModule {}

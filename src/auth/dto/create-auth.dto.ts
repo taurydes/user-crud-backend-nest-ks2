@@ -7,7 +7,7 @@ export class LoginUserDto {
     example: 'juan123 o juan@example.com',
   })
   @IsString({ message: 'Debe ingresar un correo electrónico o nombre de usuario' })
-  credential: string; // Puede ser email o username
+  credential: string; // Puede ser email o name
 
   @ApiProperty({
     description: 'Contraseña del usuario',

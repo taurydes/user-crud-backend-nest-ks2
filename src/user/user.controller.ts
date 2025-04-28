@@ -15,7 +15,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/public.decorator';
 
-@ApiTags('Users') 
+@ApiTags('Users')
 @Controller('users')
 // @UseGuards(JwtAuthGuard)
 export class UserController {
@@ -35,18 +35,18 @@ export class UserController {
   // @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+    return this.userService.findOne(+id);
   }
 
   // @ApiBearerAuth()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+    return this.userService.update(+id, updateUserDto);
   }
 
   // @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+    return this.userService.remove(+id);
   }
 }
