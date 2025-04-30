@@ -12,9 +12,12 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const isPublic = this.reflector.get<boolean>(IS_PUBLIC_KEY, context.getHandler());
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     if (isPublic) {
-      return true;
+      return true; // Permitir acceso sin autenticación
     }
 
     const request = context.switchToHttp().getRequest<Request>();

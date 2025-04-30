@@ -6,6 +6,8 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import * as dotenv from 'dotenv';
+import { PermissionsGuard } from './auth/permission.guard';
+
 
 dotenv.config();
 
@@ -29,10 +31,10 @@ async function bootstrap() {
   // Habilitar transformación de objetos
   app.enableCors();
 
-  // // Registrar el Guard Globalmente
-  // const reflector = app.get(Reflector);
-  // app.useGlobalGuards(new JwtAuthGuard(app.get(JwtService), reflector));
-
+  // Registrar el Guard Globalmente
+  const reflector = app.get(Reflector);
+  app.useGlobalGuards(new JwtAuthGuard(app.get(JwtService), reflector));
+  app.useGlobalGuards(app.get(PermissionsGuard));
   await app.listen(process.env.PORT ?? 3000);
   Logger.log(`App running on http://localhost:${process.env.PORT || 3000}/api`);
 }

@@ -1,3 +1,4 @@
+import { PermissionRoles } from 'src/permission/entities/PermissionRole.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
@@ -17,9 +18,6 @@ export class Role {
   @Column({ length: 255 })
   name: string;
 
-  @Column()
-  userId: number;
-
   @Column({ default: true })
   active: boolean;
 
@@ -34,4 +32,7 @@ export class Role {
 
   @OneToMany(() => User, (user) => user.role)
   users: User[];
+
+  @OneToMany(() => PermissionRoles, (permissionsRoles) => permissionsRoles.role)
+  permissionsRoles: PermissionRoles[];
 }

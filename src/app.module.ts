@@ -5,6 +5,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 import { getMainConnection } from './database/getMainConnection';
+import { PermissionModule } from './permission/permission.module';
+import { PermissionsGuard } from './auth/permission.guard';
 
 
 @Module({
@@ -17,8 +19,9 @@ import { getMainConnection } from './database/getMainConnection';
     UserModule,
     AuthModule,
     RoleModule,
+    PermissionModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [PermissionsGuard],
 })
 export class AppModule {}
