@@ -1,79 +1,219 @@
-# Lista de Comandos para Crear una Aplicación en NestJS
+# 🧩 User Management API — NestJS, PostgreSQL & BullMQ
 
-## 1. Instalar el CLI de NestJS
-Si no tienes el CLI de NestJS instalado, usa el siguiente comando:
-```bash
-npm install -g @nestjs/cli
-```
+API RESTful robusta construida con **NestJS**, **TypeORM**, **PostgreSQL** y **BullMQ**, con autenticación JWT, colas de trabajo, logging avanzado y un panel administrativo con **Bull Board** protegido por login.
 
-## 2. Crear una Nueva Aplicación NestJS
-```bash
-nest new nombre-de-tu-aplicacion
-```
-Esto generará una estructura básica del proyecto y te pedirá que elijas un gestor de paquetes (npm o yarn).
+---
 
-## 3. Moverte al Directorio del Proyecto
-```bash
-cd nombre-de-tu-aplicacion
-```
+## 🚀 Características principales
 
-## 4. Iniciar el Servidor de Desarrollo
-```bash
-npm run start
-```
-Por defecto, la aplicación estará disponible en `http://localhost:3000`.
+✅ **Gestión de usuarios completa (CRUD)**  
+✅ **Autenticación JWT** con guardias y decoradores personalizados  
+✅ **Hashing seguro** de contraseñas con `bcrypt`  
+✅ **Validación avanzada** de DTOs (`class-validator`, `class-transformer`)  
+✅ **Persistencia** con TypeORM + PostgreSQL  
+✅ **Documentación** integrada con **Swagger**  
+✅ **Sistema de logs visual (Handlebars UI)**  
+✅ **Procesamiento asíncrono de colas** con **BullMQ + Redis**  
+✅ **Panel Bull Board** para monitorear jobs en tiempo real  
+✅ **Protección del panel Bull Board** con login y token JWT dedicado  
 
-## 5. Generar un Módulo
+---
+
+## ⚙️ Instalación y Configuración
+
+### 1️⃣ Clonar el repositorio
 ```bash
-nest generate module nombre-del-modulo
-```
-o
-```bash
-nest g mo nombre-del-modulo
+git clone https://github.com/tu-usuario/tu-repositorio.git
+cd tu-repositorio
 ```
 
-## 6. Generar un Controlador
+### 2️⃣ Instalar dependencias
 ```bash
-nest generate controller nombre-del-controlador
-```
-o
-```bash
-nest g co nombre-del-controlador
+npm install
 ```
 
-## 7. Generar un Servicio
+### 3️⃣ Variables de entorno (`.env`)
+Crea un archivo `.env` en la raíz del proyecto con la siguiente configuración:
+
 ```bash
-nest generate service nombre-del-servicio
-```
-o
-```bash
-nest g s nombre-del-servicio
+# 🌐 Servidor
+PORT=7008
+URL_HOST=localhost
+NODE_ENV=development
+
+# 🔐 Autenticación JWT
+JWT_SECRET=super_secret_jwt_key
+JWT_EXPIRES_IN=1h
+
+# 🗄️ Base de datos PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=tu_contraseña
+DB_NAME=users_db
+
+# 🧠 Redis (para BullMQ)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# 📧 Bull Board (panel administrativo)
+USER_BULL=admin
+PASSWORD_BULL=123456
+JWT_SECRET_BULL=bull_secret
+
+# 🧾 Logs
+LOGS_PATH=logs/
 ```
 
-## 8. Generar un Recurso Completo (Módulo, Controlador y Servicio)
-```bash
-nest generate resource nombre-del-recurso
+⚠️ Asegúrate de tener **PostgreSQL** y **Redis** corriendo antes de iniciar el servidor.
+
+---
+
+## 🧱 Estructura del Proyecto
+
 ```
-Esto te pedirá que elijas entre diferentes opciones como REST API o GraphQL.
+📂 src
+ ├── 📂 auth                  # Módulo de autenticación JWT
+ │    ├── guards/
+ │    ├── decorators/
+ │    ├── dto/
+ │    ├── auth.service.ts
+ │    ├── auth.controller.ts
+ │    └── jwt.strategy.ts
+ │
+ ├── 📂 user                  # CRUD de usuarios
+ │    ├── entities/
+ │    ├── dto/
+ │    ├── user.service.ts
+ │    └── user.controller.ts
+ │
+ ├── 📂 queues                # Módulo de colas BullMQ
+ │    ├── queues.module.ts
+ │    ├── queues.service.ts
+ │    ├── 📂 bull-board       # Panel visual Bull Board
+ │    │     ├── bull-board.controller.ts
+ │    │     ├── bull-board.service.ts
+ │    │     ├── bull-board.module.ts
+ │    │     └── 📂 views/     # Plantillas Handlebars (login)
+ │    └── email.processor.ts  # Worker de envío de correos
+ │
+ ├── 📂 logs                  # Logs del sistema (UI + persistencia)
+ │    ├── logs.module.ts
+ │    ├── logs.controller.ts
+ │    ├── logs.service.ts
+ │    └── 📂 views/           # Plantillas .hbs para login y dashboard
+ │
+ ├── 📂 common                # Filtros, interceptores, pipes globales
+ │    ├── interceptors/
+ │    ├── exceptions/
+ │    └── decorators/
+ │
+ ├── app.module.ts            # Módulo raíz
+ ├── main.ts                  # Punto de entrada principal
+ ├── README.md
+ └── .env
+```
 
-## 9. Instalar Dependencias Adicionales
-- Para TypeORM:
-  ```bash
-  npm install @nestjs/typeorm typeorm mysql
-  ```
-- Para Swagger:
-  ```bash
-  npm install @nestjs/swagger swagger-ui-express
-  ```
+---
 
-## 10. Construir la Aplicación para Producción
+## 📡 Ejecución del proyecto
+
+### ▶️ Desarrollo
+```bash
+npm run start:dev
+```
+
+### 🧱 Producción
 ```bash
 npm run build
-```
-
-## 11. Ejecutar la Aplicación en Modo de Producción
-```bash
 npm run start:prod
 ```
 
-Con estos comandos, puedes crear y configurar una aplicación básica en NestJS.
+---
+
+## 📄 Documentación Swagger
+
+Disponible automáticamente en:
+> 🔗 http://localhost:7008/api
+
+---
+
+## 🔐 Autenticación y Endpoints Principales
+
+### Auth
+| Método | Ruta | Descripción |
+|--------|------|--------------|
+| **POST** | `/auth/login` | Iniciar sesión y obtener un JWT |
+| **GET** | `/auth/profile` | Obtener datos del usuario autenticado |
+
+### Users
+| Método | Ruta | Descripción |
+|--------|------|--------------|
+| **GET** | `/users` | Listar todos los usuarios |
+| **GET** | `/users/:id` | Obtener usuario por ID |
+| **POST** | `/users` | Crear nuevo usuario |
+| **PATCH** | `/users/:id` | Actualizar usuario |
+| **DELETE** | `/users/:id` | Eliminar usuario |
+
+---
+
+## 🧠 Logs UI
+
+> 📍 **Ruta:** `http://localhost:7008/logs/ui/login`
+
+Interfaz visual (Handlebars) que permite visualizar logs del sistema en tiempo real.  
+Solo accesible para **usuarios con rol de superAdministrador** (roleId = 1).  
+Integra autenticación JWT y persistencia en base de datos.
+
+---
+
+## 📦 Bull Board Panel
+
+> 📍 **Ruta de login:** `http://localhost:7008/admin/login`  
+> 📍 **Ruta del panel:** `http://localhost:7008/admin/queues`
+
+Panel de administración visual para **BullMQ**, con autenticación propia (`USER_BULL` / `PASSWORD_BULL`).
+
+Permite:
+- Visualizar colas y trabajos activos/fallidos
+- Reintentar, eliminar o limpiar jobs
+- Monitorear métricas en tiempo real
+- Autenticación protegida con JWT y cookies httpOnly
+
+---
+
+## 📨 Procesamiento de correos
+
+El worker `EmailProcessor` ejecuta tareas en segundo plano desde la cola `emailQueue`.  
+Ejemplo de uso:
+
+```ts
+await this.emailQueue.add('sendMail', {
+  type: 'template',
+  dto: { to: 'cliente@dominio.com', subject: 'Bienvenido' },
+  replacements: { nombre: 'Carlos' },
+});
+```
+
+---
+
+## 🧰 Herramientas y Tecnologías
+
+| Categoría | Tecnología |
+|------------|-------------|
+| Framework | **NestJS** |
+| ORM | **TypeORM** |
+| Base de datos | **PostgreSQL** |
+| Colas | **BullMQ** + **Redis** |
+| UI de colas | **Bull Board** |
+| Vistas | **Handlebars (hbs)** |
+| Documentación | **Swagger** |
+| Seguridad | **JWT + Guards + Cookies** |
+| Logging | **Custom Logs + UI visual** |
+
+---
+
+## 👨‍💻 Autor
+
+**Daniel Toro**  
+🔗 [GitHub: taurydes](https://github.com/taurydes)
